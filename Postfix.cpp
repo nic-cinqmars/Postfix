@@ -1,8 +1,25 @@
 #include "Postfix.h"
 
+Postfix::Postfix(const std::vector<char>& expression)
+{
+    this->expression = new std::vector<char>();
+    for (const char& c : expression)
+    {
+        this->expression->push_back(c);
+    }
+
+    this->operands = new std::stack<int>();
+}
+
+Postfix::~Postfix()
+{
+    delete expression;
+    delete operands;
+}
+
 bool Postfix::validate() const
 {
-    for (const char& c : expression)
+    for (const char& c : *expression)
     {
         if (isdigit(c))
             continue;
@@ -26,7 +43,7 @@ bool Postfix::validate() const
 
 bool Postfix::parentheses() const
 {
-    if (std::count(expression.begin(), expression.end(), '(') == std::count(expression.begin(), expression.end(), ')'))
+    if (std::count(expression->begin(), expression->end(), '(') == std::count(expression->begin(), expression->end(), ')'))
         return true;
     else
         return false;
@@ -44,7 +61,7 @@ void Postfix::transformToNumbers()
     std::stack<int> reversedOperands;
 
     // Read vector backwards so operands are in the correct order that they are needed from the stack
-    for (auto it = expression.begin(); it != expression.end();)
+    for (auto it = expression->begin(); it != expression->end();)
     {
         char currentChar = *it;
 
@@ -56,7 +73,7 @@ void Postfix::transformToNumbers()
                 ++it; // Go to next char in the vector
             }
             else
-                it = expression.erase(it); // If it is not the first digit of a number, remove it from the vector and go to the next char in the vector
+                it = expression->erase(it); // If it is not the first digit of a number, remove it from the vector and go to the next char in the vector
 
             currentNumber += currentChar;
         }
@@ -76,7 +93,7 @@ void Postfix::transformToNumbers()
 
     while (!reversedOperands.empty())
     {
-        operands.push(reversedOperands.top()); // Add to our operands stack, in the proper order (
+        operands->push(reversedOperands.top()); // Add to our operands stack, in the proper order (
         reversedOperands.pop();
     }
 }
@@ -97,7 +114,7 @@ void Postfix::transformToPostFix()
 
     std::vector<char> postFix;
     std::stack<char> s;
-    for (const char& c : expression)
+    for (const char& c : *expression)
     {
         if (c == 'o')
             postFix.push_back(c);
@@ -128,8 +145,8 @@ void Postfix::transformToPostFix()
         postFix.push_back(s.top());
         s.pop();
     }
-
-    expression = postFix;
+    
+    expression->swap(postFix);
 }
 
 std::string Postfix::getExpression() const
@@ -137,9 +154,9 @@ std::string Postfix::getExpression() const
     std::string expressionString = "";
 
     // Create a copy of operands stack to not lose our original stack
-    std::stack<int> tempOperands = operands;
+    std::stack<int> tempOperands = *operands;
 
-    for (const char& c : expression)
+    for (const char& c : *expression)
     {
         if (c == 'o')
         {
@@ -161,11 +178,11 @@ int Postfix::evaluateExpression() const
     std::stack<int> s;
 
     // Create a copy of operands stack to not lose our original stack
-    std::stack<int> tempOperands = operands;
+    std::stack<int> tempOperands = *operands;
 
     // From course theory
 
-    for (const char& c : expression)
+    for (const char& c : *expression)
     {
         if (c == 'o')
         {

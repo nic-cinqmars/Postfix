@@ -7,11 +7,13 @@
 class Postfix
 {
 private:
-	std::stack<int> operands;
-	std::vector<char> expression;
+	std::stack<int>* operands;
+	std::vector<char>* expression;
 
 public:
-	Postfix(const std::vector<char>& expression) : expression(expression) { };
+	Postfix(const std::vector<char>& expression);
+
+	~Postfix();
 
 	bool validate() const;
 	bool parentheses() const;
